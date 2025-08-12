@@ -28,23 +28,19 @@ RUN uv sync --frozen --no-dev
 # Copy application code
 COPY . .
 
+
 # Create non-root user for security
-RUN groupadd -r mcpuser && useradd -r -g mcpuser mcpuser
-RUN chown -R mcpuser:mcpuser /app
-RUN chown -R mcpuser:mcpuser /tmp/uv-cache
-RUN chmod -R 777 /home
-RUN chmod +x /app/.venv/bin/python3 \
-     && chown -R mcpuser:mcpuser /app/.venv
+# RUN groupadd -r mcpuser && useradd -r -g mcpuser mcpuser
+# RUN chown -R mcpuser:mcpuser /app
+# RUN chown -R mcpuser:mcpuser /tmp/uv-cache
+# RUN chmod -R 777 /home
+
 
 # Switch to non-root user
-USER mcpuser
+#USER mcpuser
 
 # Expose port (adjust as needed for your MCP server)
 EXPOSE 8000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
 
 # Run the MCP server
 CMD ["uv", "run", "mcp", "run", "main.py"]

@@ -14,6 +14,7 @@ mcp = FastMCP(
     name="kafka"
 )
 
+
 @mcp.tool("list_kafka_topics")
 def list_kafka_topics() -> list:
     # Placeholder function to list Kafka topics
