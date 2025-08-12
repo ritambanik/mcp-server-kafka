@@ -44,11 +44,17 @@ jobs:
           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
 
       # Get GKE credentials
-      - name: Get GKE credentials
+      - name: Set up GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ secrets.GKE_CLUSTER }}
+          location: ${{ secrets.GKE_ZONE }}
+          project_id: ${{ secrets.GCP_PROJECT }}
+
+      # Install gke-gcloud-auth-plugin
+      - name: Install gke-gcloud-auth-plugin
         run: |
-          gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER }} \
-            --zone ${{ secrets.GKE_ZONE }} \
-            --project ${{ secrets.GCP_PROJECT }}
+          gcloud components install gke-gcloud-auth-plugin --quiet
 
       # Install Helm
       - name: Install Helm
