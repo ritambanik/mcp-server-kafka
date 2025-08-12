@@ -59,7 +59,7 @@ jobs:
       # Deploy Helm chart with new image tag
       - name: Deploy with Helm
         run: |
-          helm upgrade --install mcp-server-kafka ./charts/myapp \
+          helm upgrade --install mcp-server-kafka ./charts/mcp-server-kafka \
             --namespace mcp-server \
             --create-namespace \
             --set image.repository=$REGISTRY/${{ secrets.GCP_PROJECT }}/$IMAGE_NAME \
