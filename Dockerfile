@@ -33,6 +33,8 @@ RUN groupadd -r mcpuser && useradd -r -g mcpuser mcpuser
 RUN chown -R mcpuser:mcpuser /app
 RUN chown -R mcpuser:mcpuser /tmp/uv-cache
 RUN chmod -R 777 /home
+RUN chmod +x /app/.venv/bin/python3 \
+     && chown -R mcpuser:mcpuser /app/.venv
 
 # Switch to non-root user
 USER mcpuser
