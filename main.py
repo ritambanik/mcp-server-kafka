@@ -4,9 +4,6 @@
 
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI
-from datetime import datetime
-import time
 
 from mcp.server.fastmcp import FastMCP
 
@@ -17,17 +14,6 @@ mcp = FastMCP(
     name="kafka"
 )
 
-app = FastAPI()
-start_time = time.time()
-
-@app.get("/health")
-async def health_check():
-    return {
-        "status": "healthy",
-        "service": "mcp-server-kafka",
-        "timestamp": datetime.now(datetime.timezone.utc).isoformat(),
-        "uptime": time.time() - start_time
-    }
 
 @mcp.tool("list_kafka_topics")
 def list_kafka_topics() -> list:
