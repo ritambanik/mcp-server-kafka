@@ -31,6 +31,9 @@ resource "google_container_cluster" "primary" {
     # use_ip_aliases is enabled by default when ip_allocation_policy is set
   }
 
+  # Disable deletion protection for allowing terraform to delete the cluster; enable in production
+  deletion_protection = false
+
   # Master authorized networks, logging, monitoring options, etc. can be added here.
 }
 

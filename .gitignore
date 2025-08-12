@@ -233,6 +233,7 @@ terraform.rc
 
 # Ignore plan output files
 *.tfplan
+*.tfdestroyplan
 
 
 .history/
