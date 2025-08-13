@@ -43,4 +43,4 @@ COPY . .
 EXPOSE 8000
 
 # Run the MCP server
-CMD ["uv", "run", "mcp", "run", "main.py"]
+CMD ["uv", "run", "main.py", "--mode", "streamable-http"]

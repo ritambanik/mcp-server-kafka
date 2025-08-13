@@ -14,8 +14,10 @@ from mcp.server.fastmcp import FastMCP
 
 load_dotenv()
 
+mcp = FastMCP(name="mcp-server-kafka",stateless_http=True, host="0.0.0.0", port=8000)
 
-app = FastAPI()
+app = FastAPI(title="mcp-server-kafka",lifespan=lambda app: mcp.session_manager.run())
+app.mount("/health", mcp.streamable_http_app())
 start_time = time.time()
 
 @app.get("/health")
@@ -26,10 +28,6 @@ async def health_check():
         "timestamp": datetime.now(datetime.timezone.utc).isoformat(),
         "uptime": time.time() - start_time
     }
-
-mcp = FastMCP(
-    name="kafka"
-)
 
 
 @mcp.tool("list_kafka_topics")
@@ -58,7 +56,7 @@ def main():
     print("  - List Kafka topics (list_kafka_topics)")
     print("  - Describe a Kafka topic (describe_kafka_topic)")
     
-    mcp.run()
+    mcp.run(transport="streamable-http")
     
     print("🚀 Server is running and ready to accept requests.")
 
