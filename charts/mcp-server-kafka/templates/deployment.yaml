@@ -37,13 +37,13 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 8000
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
             - name: PORT
-              value: "80"
+              value: "8000"
             - name: HOST
               value: "0.0.0.0"
       {{- with .Values.nodeSelector }}
