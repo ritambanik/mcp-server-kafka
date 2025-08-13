@@ -41,6 +41,11 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: PORT
+              value: "80"
+            - name: HOST
+              value: "0.0.0.0"
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
