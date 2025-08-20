@@ -68,3 +68,36 @@ resource "google_container_node_pool" "primary_pool" {
     auto_upgrade = true
   }
 }
+
+# Create a static external IP address
+# This can be used for LoadBalancer services
+resource "google_compute_address" "static_external_ip" {
+  name        = "my-ingress-ip"
+  region      = "us-central1" # Replace with your desired region
+  description = "Static external IP for my application"
+}
+
+
+# Create the managed DNS zone
+resource "google_dns_managed_zone" "main" {
+  name        = var.dns_zone_name
+  dns_name    = "${var.domain_name}."
+  description = "DNS zone for ${var.domain_name}"
+  
+  # Optional: Make it private if needed
+  # visibility = "private"
+  
+  labels = {
+    environment = "development"
+    managed-by  = "terraform"
+  }
+}
+
+# A record for root domain
+resource "google_dns_record_set" "root_a" {
+  name         = google_dns_managed_zone.main.dns_name
+  managed_zone = google_dns_managed_zone.main.name
+  type         = "A"
+  ttl          = var.ttl
+  rrdatas      = [google_compute_address.static_external_ip.address]  # Use the static IP address
+}

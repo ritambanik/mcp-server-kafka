@@ -37,18 +37,19 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 8000
+  port: 80
 
 ingress:
   enabled: true
   className: "gce"
   annotations:
     kubernetes.io/ingress.class: gce
+    #kubernetes.io/ingress.global-static-ip-name: my-ingress-ip
     # kubernetes.io/tls-acme: "true"
   hosts:
-  - host: example.com
+  - host: my.mcp-server.com
     paths:
-    - path: /
+    - path: /mcp
       pathType: Prefix
   tls: []
   #  - secretName: chart-example-tls

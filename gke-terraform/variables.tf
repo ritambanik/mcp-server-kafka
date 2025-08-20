@@ -47,3 +47,21 @@ variable "node_machine_type" {
   type    = string
   default = "e2-medium"
 }
+
+variable "domain_name" {
+  description = "The domain name (e.g., example.com)"
+  type        = string
+  default     = "my.mcp-server.com"
+}
+
+variable "dns_zone_name" {
+  description = "Name for the DNS zone"
+  type        = string
+  default     = "my-mcp-server-zone"
+}
+
+variable "ttl" {
+  description = "TTL for DNS records in seconds"
+  type        = number
+  default     = 300
+}

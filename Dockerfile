@@ -40,7 +40,7 @@ COPY src/app .
 #USER mcpuser
 
 # Expose port (adjust as needed for your MCP server)
-EXPOSE 3000
+EXPOSE 8080
 
 # Run the MCP server
-CMD ["uv", "run", "main.py", "--name", "mcp-server-kafka", "--log-level", "DEBUG", "--port", "3000", "--host", "0.0.0.0"]
+CMD ["uv", "run", "main.py", "--name", "mcp-server-kafka", "--log-level", "DEBUG", "--port", "8080", "--host", "0.0.0.0"]
