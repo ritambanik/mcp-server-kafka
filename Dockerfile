@@ -17,7 +17,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
   
 # Create app directory
-WORKDIR /app
+WORKDIR /mcp-server
 
 # Copy dependency files
 COPY pyproject.toml uv.lock* ./
@@ -26,7 +26,7 @@ COPY pyproject.toml uv.lock* ./
 RUN uv sync --frozen --no-dev
 
 # Copy application code
-COPY . .
+COPY src/app .
 
 
 # Create non-root user for security
@@ -40,7 +40,7 @@ COPY . .
 #USER mcpuser
 
 # Expose port (adjust as needed for your MCP server)
-EXPOSE 8000
+EXPOSE 3000
 
 # Run the MCP server
-CMD ["uv", "run", "mcp", "run", "main.py"]
+CMD ["uv", "run", "main.py", "--name", "mcp-server-kafka", "--log-level", "DEBUG", "--port", "3000", "--host", "0.0.0.0"]
