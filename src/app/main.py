@@ -68,10 +68,11 @@ async def read_kafka_topic(topic_name: str, limit: int = 10) -> List[TextContent
     """Read messages from a Kafka topic"""
     
     from confluent_kafka import Consumer, KafkaException
+    import uuid
     
     consumer_conf = conf.copy()
     consumer_conf.update({
-        'group.id': 'mcp-consumer-group',
+        'group.id': f"mcp-consumer-group-{str(uuid.uuid4())}",
         'auto.offset.reset': 'earliest'
     })
     
