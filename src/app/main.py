@@ -57,17 +57,8 @@ async def describe_kafka_topic(topic_name: str) -> Dict[str, Any]:
     """Describe a Kafka topic with its details"""
     
     admin_client = AdminClient(conf)
-    metadata = admin_client.list_topics(topic_name, timeout=10)
-    topic = metadata.topics[topic_name]
-    
-    topic_details = {
-        "name": topic.name,
-        "partitions": len(topic.partitions),
-        "replication_factor": topic.partitions[0].replicas[0].count if topic.partitions else 0,
-        "configs": {config.name: config.value for config in topic.configs.values()}
-    }
-
-    return topic_details
+    metadata = admin_client.describe_topics([topic_name])
+    return metadata
     
        
 @mcp.resource(
