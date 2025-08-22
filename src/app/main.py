@@ -57,10 +57,39 @@ async def list_kafka_topics_tool() -> List[TextContent]:
 )
 async def describe_kafka_topic(topic_name: str) -> Dict[str, Any]:
     """Describe a Kafka topic with its details"""
-    
+    print("---------------describe_kafka_topic ------------------------")
     admin_client = AdminClient(conf)
-    metadata = admin_client.describe_topics([topic_name])
-    return metadata
+    
+    try:
+        # Get cluster metadata which includes topic information
+        metadata = admin_client.list_topics(topic=topic_name, timeout=10)
+        
+        if topic_name in metadata.topics:
+            topic = metadata.topics[topic_name]
+            
+            # Build detailed response
+            topic_info = {
+                "topic_name": topic_name,
+                "partition_count": len(topic.partitions),
+                "partitions": {}
+            }
+            
+            # Add partition details
+            for partition_id, partition in topic.partitions.items():
+                topic_info["partitions"][partition_id] = {
+                    "partition_id": partition_id,
+                    "leader": partition.leader,
+                    "replicas": list(partition.replicas),
+                    "in_sync_replicas": list(partition.isrs),
+                    "error": partition.error
+                }
+            
+            return topic_info
+        else:
+            return {"error": f"Topic '{topic_name}' not found"}
+            
+    except Exception as e:
+        return {"error": f"Failed to describe topic: {str(e)}"}
     
 @mcp.tool(
        name="read_kafka_topic",
@@ -69,7 +98,7 @@ async def describe_kafka_topic(topic_name: str) -> Dict[str, Any]:
 async def read_kafka_topic(topic_name: str, limit: int = 10) -> List[TextContent]:
     """Read messages from a Kafka topic"""
     
-    from confluent_kafka import Consumer, KafkaException
+    from confluent_kafka import Consumer, KafkaException, KafkaError
     import uuid
     
     consumer_conf = conf.copy()
@@ -85,11 +114,15 @@ async def read_kafka_topic(topic_name: str, limit: int = 10) -> List[TextContent
     
     try:
         for _ in range(limit):
-            msg = consumer.poll(timeout=1.0)
+            msg = consumer.poll(timeout=30.0)
             if msg is None:
                 break
             if msg.error():
-                raise KafkaException(msg.error())
+                if msg.error().code() == KafkaError._PARTITION_EOF:
+                    # End of partition (not an error)
+                    continue
+                else:
+                    raise KafkaException(msg.error())
             messages.append(TextContent(type="text", text=msg.value().decode('utf-8')))
     finally:
         consumer.close()
