@@ -60,7 +60,40 @@ async def describe_kafka_topic(topic_name: str) -> Dict[str, Any]:
     metadata = admin_client.describe_topics([topic_name])
     return metadata
     
-       
+@mcp.tool(
+       name="read_kafka_topic",
+       description="Read messages from a specific Kafka topic",
+         )
+async def read_kafka_topic(topic_name: str, limit: int = 10) -> List[TextContent]:
+    """Read messages from a Kafka topic"""
+    
+    from confluent_kafka import Consumer, KafkaException
+    
+    consumer_conf = conf.copy()
+    consumer_conf.update({
+        'group.id': 'mcp-consumer-group',
+        'auto.offset.reset': 'earliest'
+    })
+    
+    consumer = Consumer(consumer_conf)
+    consumer.subscribe([topic_name])
+    
+    messages = []
+    
+    try:
+        for _ in range(limit):
+            msg = consumer.poll(timeout=1.0)
+            if msg is None:
+                break
+            if msg.error():
+                raise KafkaException(msg.error())
+            messages.append(TextContent(type="text", text=msg.value().decode('utf-8')))
+    finally:
+        consumer.close()
+    
+    return messages
+
+
 @mcp.resource(
     uri="config://server-info",
     name="Server Information",
