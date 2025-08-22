@@ -48,12 +48,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.kafka.apiAccessCredentialsSecret.name }}
-                  key: {{ .Values.kafka.apiAccessCredentialsSecret.apiKeySecretKey }}
+                  key: KAFKA_API_KEY
             - name: KAFKA_API_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.kafka.apiAccessCredentialsSecret.name }}
-                  key: {{ .Values.kafka.apiAccessCredentialsSecret.apiKeySecretSecret }}
+                  key: KAFKA_API_SECRET
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
