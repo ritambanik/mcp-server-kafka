@@ -13,6 +13,8 @@ import logging
 
 from typing import Any, Dict, List
 
+import os
+
 import uvicorn
 
 from mcp.server.fastmcp import FastMCP
@@ -27,11 +29,11 @@ logger = logging.getLogger(__name__)
 mcp = FastMCP(name="mcp-server-kafka", json_response=False, stateless_http=False) 
   
 conf = {
-    'bootstrap.servers': 'pkc-619z3.us-east1.gcp.confluent.cloud:9092',
+    'bootstrap.servers': os.getenv('KAFKA_BOOTSTRAP_SERVERS'),
     'security.protocol': 'SASL_SSL',
     'sasl.mechanism': 'PLAIN',
-    'sasl.username': 'W6245KIEVR4AJ5NV',
-    'sasl.password': 'cfltnN1scGFCSltz8RRMcFJLpYpeh5ZetsX8B84kxVWQT/ZpzRG5r8VLcNq4OQ2w'
+    'sasl.username': os.getenv('KAFKA_API_KEY'),
+    'sasl.password': os.getenv('KAFKA_API_SECRET'),
 }  
 
      

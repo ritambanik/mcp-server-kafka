@@ -80,3 +80,10 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+kafka:
+  bootstrapServers: pkc-619z3.us-east1.gcp.confluent.cloud:9092
+  apiAccessCredentialsSecret:
+    name: mcp-kafka-server-secrets
+    apiKeySecretKey: ""
+    apiKeySecretSecret: ""

@@ -6,6 +6,10 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     UV_CACHE_DIR=/tmp/uv-cache
 
+ENV KAFKA_BOOTSTRAP_SERVERS=""
+ENV KAFKA_API_KEY=""
+ENV KAFKA_API_SECRET=""
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \

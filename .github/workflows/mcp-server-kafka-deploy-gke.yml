@@ -12,7 +12,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
+    environment: dev
     env:
       IMAGE_NAME: mcp-server-kafka
       REGISTRY: gcr.io   # Change to your Artifact Registry region OR gcr.io
@@ -74,3 +74,5 @@ jobs:
             --create-namespace \
             --set image.repository=$REGISTRY/${{ secrets.GCP_PROJECT }}/$IMAGE_NAME \
             --set image.tag=${GITHUB_SHA::7}
+            --set kafka.apiAccessCredentialsSecret.apiKeySecretKey=${{ secrets.KAFKA_API_KEY }} \
+            --set kafka.apiAccessCredentialsSecret.apiKeySecretSecret=${{ secrets.KAFKA_API_SECRET }}
