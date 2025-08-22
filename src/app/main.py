@@ -18,12 +18,22 @@ import uvicorn
 from mcp.server.fastmcp import FastMCP
 from mcp.types import TextContent
 
+from confluent_kafka.admin import AdminClient
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 mcp = FastMCP(name="mcp-server-kafka", json_response=False, stateless_http=False) 
   
+conf = {
+    'bootstrap.servers': 'pkc-619z3.us-east1.gcp.confluent.cloud:9092',
+    'security.protocol': 'SASL_SSL',
+    'sasl.mechanism': 'PLAIN',
+    'sasl.username': 'W6245KIEVR4AJ5NV',
+    'sasl.password': 'cfltnN1scGFCSltz8RRMcFJLpYpeh5ZetsX8B84kxVWQT/ZpzRG5r8VLcNq4OQ2w'
+}  
+
      
 @mcp.tool(
     name="list_kafka_topics",
@@ -31,28 +41,33 @@ mcp = FastMCP(name="mcp-server-kafka", json_response=False, stateless_http=False
 )
 async def list_kafka_topics_tool() -> List[TextContent]:
     """Show a list of Kafka topics"""
-    return [
-        TextContent(type="text", text="topics1"),
-        TextContent(type="text", text="topics2"),
-        TextContent(type="text", text="topics3"),
-    ]
+    
+    admin_client = AdminClient(conf)
+    cluster_metadata = admin_client.list_topics(timeout=10)
+    topic_names = cluster_metadata.topics.keys()
+    
+    return [TextContent(type="text", text=topic_name) for topic_name in topic_names]
+    
 
 @mcp.tool(
     name="describe_kafka_topic",
     description="Describe a specific Kafka topic with details like partitions, replication factor, and configurations",
 )
-async def calculate_tool(topic_name: str) -> Dict[str, Any]:
+async def describe_kafka_topic(topic_name: str) -> Dict[str, Any]:
     """Describe a Kafka topic with its details"""
-
-    return {
-        "topic": topic_name,
-        "partitions": 3,
-        "replication_factor": 2,
-        "configs": {
-            "cleanup.policy": "delete",
-            "compression.type": "producer"
-        }
+    
+    admin_client = AdminClient(conf)
+    metadata = admin_client.list_topics(topic_name, timeout=10)
+    topic = metadata.topics[topic_name]
+    
+    topic_details = {
+        "name": topic.name,
+        "partitions": len(topic.partitions),
+        "replication_factor": topic.partitions[0].replicas[0].count if topic.partitions else 0,
+        "configs": {config.name: config.value for config in topic.configs.values()}
     }
+
+    return topic_details
     
        
 @mcp.resource(
