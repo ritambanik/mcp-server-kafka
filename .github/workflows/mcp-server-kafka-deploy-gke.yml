@@ -73,6 +73,6 @@ jobs:
             --namespace mcp-server \
             --create-namespace \
             --set image.repository=$REGISTRY/${{ secrets.GCP_PROJECT }}/$IMAGE_NAME \
-            --set image.tag=${GITHUB_SHA::7}
+            --set image.tag=${GITHUB_SHA::7} \
             --set kafka.apiAccessCredentialsSecret.apiKeySecretKey=${{ secrets.KAFKA_API_KEY }} \
             --set kafka.apiAccessCredentialsSecret.apiKeySecretSecret=${{ secrets.KAFKA_API_SECRET }}
