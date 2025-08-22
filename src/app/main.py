@@ -46,7 +46,7 @@ async def list_kafka_topics_tool() -> List[TextContent]:
     cluster_metadata = admin_client.list_topics(timeout=10)
     topic_names = cluster_metadata.topics.keys()
     
-    return [TextContent(type="text", text=topic_name) for topic_name in topic_names]
+    return [TextContent(type="text", text=f"{topic_name}\n") for topic_name in topic_names]
     
 
 @mcp.tool(
