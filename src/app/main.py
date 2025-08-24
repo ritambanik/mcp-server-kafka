@@ -13,10 +13,14 @@ import logging
 
 from typing import Any, Dict, List
 
+import os
+
 import uvicorn
 
 from mcp.server.fastmcp import FastMCP
 from mcp.types import TextContent
+
+from confluent_kafka.admin import AdminClient
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -24,6 +28,14 @@ logger = logging.getLogger(__name__)
 
 mcp = FastMCP(name="mcp-server-kafka", json_response=False, stateless_http=False) 
   
+conf = {
+    'bootstrap.servers': os.getenv('KAFKA_BOOTSTRAP_SERVERS'),
+    'security.protocol': 'SASL_SSL',
+    'sasl.mechanism': 'PLAIN',
+    'sasl.username': os.getenv('KAFKA_API_KEY'),
+    'sasl.password': os.getenv('KAFKA_API_SECRET'),
+}  
+
      
 @mcp.tool(
     name="list_kafka_topics",
@@ -31,30 +43,93 @@ mcp = FastMCP(name="mcp-server-kafka", json_response=False, stateless_http=False
 )
 async def list_kafka_topics_tool() -> List[TextContent]:
     """Show a list of Kafka topics"""
-    return [
-        TextContent(type="text", text="topics1"),
-        TextContent(type="text", text="topics2"),
-        TextContent(type="text", text="topics3"),
-    ]
+    
+    admin_client = AdminClient(conf)
+    cluster_metadata = admin_client.list_topics(timeout=10)
+    topic_names = cluster_metadata.topics.keys()
+    
+    return [TextContent(type="text", text=f"{topic_name}\n") for topic_name in topic_names]
+    
 
 @mcp.tool(
     name="describe_kafka_topic",
     description="Describe a specific Kafka topic with details like partitions, replication factor, and configurations",
 )
-async def calculate_tool(topic_name: str) -> Dict[str, Any]:
+async def describe_kafka_topic(topic_name: str) -> Dict[str, Any]:
     """Describe a Kafka topic with its details"""
-
-    return {
-        "topic": topic_name,
-        "partitions": 3,
-        "replication_factor": 2,
-        "configs": {
-            "cleanup.policy": "delete",
-            "compression.type": "producer"
-        }
-    }
+    print("---------------describe_kafka_topic ------------------------")
+    admin_client = AdminClient(conf)
     
-       
+    try:
+        # Get cluster metadata which includes topic information
+        metadata = admin_client.list_topics(topic=topic_name, timeout=10)
+        
+        if topic_name in metadata.topics:
+            topic = metadata.topics[topic_name]
+            
+            # Build detailed response
+            topic_info = {
+                "topic_name": topic_name,
+                "partition_count": len(topic.partitions),
+                "partitions": {}
+            }
+            
+            # Add partition details
+            for partition_id, partition in topic.partitions.items():
+                topic_info["partitions"][partition_id] = {
+                    "partition_id": partition_id,
+                    "leader": partition.leader,
+                    "replicas": list(partition.replicas),
+                    "in_sync_replicas": list(partition.isrs),
+                    "error": partition.error
+                }
+            
+            return topic_info
+        else:
+            return {"error": f"Topic '{topic_name}' not found"}
+            
+    except Exception as e:
+        return {"error": f"Failed to describe topic: {str(e)}"}
+    
+@mcp.tool(
+       name="read_kafka_topic",
+       description="Read messages from a specific Kafka topic",
+         )
+async def read_kafka_topic(topic_name: str, limit: int = 10) -> List[TextContent]:
+    """Read messages from a Kafka topic"""
+    
+    from confluent_kafka import Consumer, KafkaException, KafkaError
+    import uuid
+    
+    consumer_conf = conf.copy()
+    consumer_conf.update({
+        'group.id': f"mcp-consumer-group-{str(uuid.uuid4())}",
+        'auto.offset.reset': 'earliest'
+    })
+    
+    consumer = Consumer(consumer_conf)
+    consumer.subscribe([topic_name])
+    
+    messages = []
+    
+    try:
+        for _ in range(limit):
+            msg = consumer.poll(timeout=30.0)
+            if msg is None:
+                break
+            if msg.error():
+                if msg.error().code() == KafkaError._PARTITION_EOF:
+                    # End of partition (not an error)
+                    continue
+                else:
+                    raise KafkaException(msg.error())
+            messages.append(TextContent(type="text", text=msg.value().decode('utf-8')))
+    finally:
+        consumer.close()
+    
+    return messages
+
+
 @mcp.resource(
     uri="config://server-info",
     name="Server Information",
