@@ -1,4 +1,4 @@
-from kafkaconfig import conf
+from utils.kafkaconfig import conf
 from mcp.types import TextContent
 
 def read_kafka_topic(topic_name: str, timeout: int, limit: int = 10) -> list:

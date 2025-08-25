@@ -1,4 +1,4 @@
-from kafkaconfig import admin_client
+from utils.kafkaconfig import admin_client
 
 def describe_kafka_topic(topic_name: str) -> dict:
     """Describe a Kafka topic with its details"""

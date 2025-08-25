@@ -30,7 +30,7 @@ COPY pyproject.toml uv.lock* ./
 RUN uv sync --frozen --no-dev
 
 # Copy application code
-COPY src/app .
+COPY src/mcp-server .
 
 
 # Create non-root user for security
@@ -47,4 +47,4 @@ COPY src/app .
 EXPOSE 8080
 
 # Run the MCP server
-CMD ["uv", "run", "main.py", "--name", "mcp-server-kafka", "--log-level", "DEBUG", "--port", "8080", "--host", "0.0.0.0"]
+CMD ["uv", "run", "server.py", "--name", "mcp-server-kafka", "--log-level", "DEBUG", "--port", "8080", "--host", "0.0.0.0"]

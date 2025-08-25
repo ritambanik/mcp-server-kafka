@@ -1,4 +1,4 @@
-from kafkaconfig import admin_client
+from utils.kafkaconfig import admin_client
 from typing import List
 
 def list_kafka_topics()->List[str]:
