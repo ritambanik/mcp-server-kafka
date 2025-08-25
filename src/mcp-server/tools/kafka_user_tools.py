@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 )
 async def list_kafka_topics_tool() -> List[TextContent]:
     """Show a list of Kafka topics""" 
-    from ..kafka.useractions.listkafkatopics import list_kafka_topics
+    from kafka.useractions.listkafkatopics import list_kafka_topics
     
     topic_names = list_kafka_topics() 
     return [TextContent(type="text", text=f"{topic_name}\n") for topic_name in topic_names]
@@ -22,7 +22,7 @@ async def list_kafka_topics_tool() -> List[TextContent]:
 async def describe_kafka_topic(topic_name: str) -> Dict[str, Any]:
     """Describe a Kafka topic with its details"""
     
-    from ..kafka.useractions.describekafkatopic import describe_kafka_topic
+    from kafka.useractions.describekafkatopic import describe_kafka_topic
     
     topic_info = describe_kafka_topic(topic_name)
     return topic_info
@@ -34,6 +34,6 @@ async def describe_kafka_topic(topic_name: str) -> Dict[str, Any]:
 async def read_kafka_topic(topic_name: str, limit: int = 10, timeout : int = 30) -> List[TextContent]:
     """Read messages from a Kafka topic"""
     
-    from ..kafka.useractions.readkafkatopic import read_kafka_topic
+    from kafka.useractions.readkafkatopic import read_kafka_topic
     messages = read_kafka_topic(topic_name, timeout=timeout, limit=limit)
     return messages
