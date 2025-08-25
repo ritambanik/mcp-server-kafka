@@ -4,7 +4,7 @@ Kafka configuration and utility functions.
 
 import os
 
-from confluent_kafka import AdminClient
+from confluent_kafka.admin import AdminClient
 
 conf = {
     'bootstrap.servers': os.getenv('KAFKA_BOOTSTRAP_SERVERS'),
